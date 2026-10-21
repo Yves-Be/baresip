@@ -872,7 +872,9 @@ static void stream_remote_set(struct stream *s)
 	rtprecv_enable_mux(s->rx, s->rtcp_mux);
 
 	mtx_lock(s->tx.lock);
-	if (bundle_state(stream_bundle(s)) != BUNDLE_MUX) {
+	/* RFC 5245: keep the ICE selected pair */
+	if (bundle_state(stream_bundle(s)) != BUNDLE_MUX &&
+	    !s->mnat_connected) {
 		sa_cpy(&s->tx.raddr_rtp, sdp_media_raddr(s->sdp));
 
 		if (s->rtcp_mux)
